@@ -9,7 +9,7 @@
     (exec! "" "")
     (is (empty? @processes)))
   (testing "exec! initialized"
-    (init! {"top" {:path "/usr/bin/top"}})
+    (init! {"top" {:path "top"}})
     (is (not (empty? @processes)))
     (exec! "top" "start")
     (is (not (empty? @processes)))
@@ -24,7 +24,7 @@
     (exec! "" "")
     (is (empty? @processes)))
   (testing "exec! initialized"
-    (init! {"top" {:path "/usr/bin/top"}})
+    (init! {"top" {:path "top"}})
     (is (not (empty? @processes)))
     (exec! "oko" "start")
     (is (not (empty? @processes)))
