@@ -6,6 +6,7 @@
 
 (deftest exec!-happy-path
   (testing "exec! uninitialized"
+    (reset! processes {})
     (exec! "" "")
     (is (empty? @processes)))
   (testing "exec! initialized"
