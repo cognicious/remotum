@@ -1,6 +1,5 @@
-# remotum 
+# remotum [![CircleCI](https://circleci.com/gh/cognicious/remotum.svg?style=svg)](https://circleci.com/gh/cognicious/remotum)
 Simple application launcher
-[![CircleCI](https://circleci.com/gh/cognicious/remotum.svg?style=svg)](https://circleci.com/gh/cognicious/remotum)
 
 ## Building
 
