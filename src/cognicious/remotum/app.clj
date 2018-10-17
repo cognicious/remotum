@@ -55,8 +55,7 @@
     (doall (map #(log/info %) (banner)))
     (log/info (pr-str {:start app}))
     (log/info (pr-str {:reading-config=file config}))
-    (let [{:keys [cognicious.remotum.app/server cognicious.remotum.app/app] :as cfg} (get-config config)]
-      (println (pr-str [server app]))
+    (let [{:rmt/keys [server app] :as cfg} (get-config config)]
       (if (spec/valid? :rmt/config cfg)
-        (server/start-server 8080)
-        (log/error (spec/explain-str :rmt/config cfg))))))
+        (server/start-server server app)
+        (log/fatal (spec/explain-str :rmt/config cfg))))))
