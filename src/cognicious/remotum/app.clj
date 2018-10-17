@@ -1,6 +1,7 @@
 (ns cognicious.remotum.app
   (:gen-class)
   (:require [clojure.java.io :as io]
+            [clojure.spec.alpha :as spec]
             [clojure.string :as s]
             [clojure.tools.logging :as log]
             [cognicious.remotum.server :as server]))
@@ -27,11 +28,35 @@
   []
   (s/split-lines (slurp (io/resource "banner.txt"))))
 
+(defn shutdown-hook [app]
+  (.addShutdownHook
+   (Runtime/getRuntime)
+   (Thread. #(log/info (pr-str {:stop app})))))
+
+(defn get-config [path]
+  (try 
+    (read-string (slurp path))
+    (catch Exception e
+      (log/fatal (pr-str {:message (.getMessage e)})))))
+
+(spec/def :rmt/port number?)
+(spec/def :rmt/host string?)
+(spec/def :rmt/apps map?)
+(spec/def :rmt/server (spec/keys :req [:rmt/port] :opt [:rmt/host]))
+(spec/def :rmt/config (spec/keys :req [:rmt/server :rmt/apps]))
+(spec/fdef get-config 
+           :args (spec/cat :path string?) 
+           :ret :rmt/config)
+
 (defn -main [& args]
-  (let [app (name-version)]
+  (let [app (name-version)
+        _ (shutdown-hook app)
+        config (.getCanonicalPath (clojure.java.io/file "./config.edn"))]
     (doall (map #(log/info %) (banner)))
     (log/info (pr-str {:start app}))
-    (server/start-server 8080)
-    (.addShutdownHook
-     (Runtime/getRuntime)
-     (Thread. #(log/info (pr-str {:stop app}))))))
+    (log/info (pr-str {:reading-config=file config}))
+    (let [{:keys [cognicious.remotum.app/server cognicious.remotum.app/app] :as cfg} (get-config config)]
+      (println (pr-str [server app]))
+      (if (spec/valid? :rmt/config cfg)
+        (server/start-server 8080)
+        (log/error (spec/explain-str :rmt/config cfg))))))
