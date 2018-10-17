@@ -17,10 +17,12 @@
                          bs/to-byte-array)))
       (recur))))
 
-(defn start-server [port]
+(defn start-server [server-opts apps]
+  (log/info (pr-str {:start-server server-opts}))
   (tcp/start-server
    (fn [stream info]
      (log/debug {:stream stream})
      (log/debug {:info info})
      (wrap-duplex-stream stream (fn [request] (log/info {:req request}) (str "REC: " request))))
-   {:port port}))
+   (clojure.set/rename-keys server-opts 
+                            {:rmt/port :port :rmt/host :socket-address})))
