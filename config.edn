@@ -1,0 +1,1 @@
+{:rmt/server {:rmt/port 8080} :rmt/apps {}}
