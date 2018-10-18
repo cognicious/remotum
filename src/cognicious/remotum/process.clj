@@ -4,6 +4,17 @@
 
 (def processes (atom {}))
 
+(defn entry-parser
+  "
+  Parses a line to extract app-alias and action, then execute handler with they.
+  "
+  [line handler]
+  (log/debug (pr-str {:entry-parser [line handler]}))
+  (let [[_ app-alias action] (re-find #"([A-zA-Z0-9_-~\.]+)\s*([A-zA-Z0-9_-~\.]*).*" line)]
+    (if (and app-alias)
+      (handler app-alias action)
+      (log/warn (pr-str {:message (format "Unable to parse '%s'" line)})))))
+
 (defn launcher 
   "
   Launch an application using its path. Application arguments must be passed as
@@ -56,7 +67,8 @@
     (if (= action "start")
       (cond (string? path) (launcher path)
             (coll? path) (apply launcher path)
-            :else (log/warn (pr-str {:message (format ":path for App alias '%s' is invalid (not string, not coll), check your config EDN" app-alias)}))))))
+            :else (log/warn (pr-str {:message (format ":path for App alias '%s' is invalid (not string, not coll), check your config EDN" app-alias)})))
+      {:out nil :err nil :in nil :process nil})))
 
 (defn exec!
   "Take an app-alias and try to dispatch its program"
