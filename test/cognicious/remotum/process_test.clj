@@ -1,6 +1,8 @@
 (ns cognicious.remotum.process-test
   (:require [clojure.test :refer [deftest testing is]]
-            [cognicious.remotum.process :refer [processes
+            [cognicious.remotum.process :refer [dispatcher
+                                                entry-parser
+                                                processes
                                                 init!
                                                 exec!]]))
 
@@ -29,6 +31,7 @@
 
 (deftest exec!-wrong-path
   (testing "exec! uninitialized"
+    (reset! processes {})
     (exec! "" "")
     (is (empty? @processes)))
   (testing "exec! initialized"
@@ -40,3 +43,22 @@
     (exec! "oko" "stop")
     (is (not (empty? @processes)))
     (is (nil? (:process (get @processes "top"))))))
+
+(deftest dispatcher-
+  (testing "dispatcher cases"
+    (reset! processes {})
+    (exec! "" "")
+    (is (empty? @processes)))
+  (testing "exec! initialized"
+    (let [app-cfg {:path ["top" ""]}]
+      (is (not (nil? (dispatcher "top" "start" app-cfg)))))
+    (let [app-cfg {:path 1000}]
+      (is (nil? (dispatcher "top" "start" app-cfg))))))
+
+(deftest entry-parser-
+  (testing "entry parser cases"
+    (let [handler-fn (fn [x y] (pr-str [x y]))]
+      (is (= (pr-str ["foo" "start"])  (entry-parser "foo start\r\n" handler-fn)))
+      (is (= (pr-str ["foo" "start"])  (entry-parser "foo\tstart" handler-fn)))
+      (is (= (pr-str ["foostart" ""])  (entry-parser "foostart" handler-fn)))
+      (is (= nil  (entry-parser "\n" handler-fn))))))
