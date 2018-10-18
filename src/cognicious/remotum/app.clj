@@ -55,7 +55,7 @@
     (doall (map #(log/info %) (banner)))
     (log/info (pr-str {:start app}))
     (log/info (pr-str {:reading-config=file config}))
-    (let [{:rmt/keys [server app] :as cfg} (get-config config)]
+    (let [{:rmt/keys [server apps] :as cfg} (get-config config)]
       (if (spec/valid? :rmt/config cfg)
-        (server/start-server server app)
+        (server/start-server server apps)
         (log/fatal (spec/explain-str :rmt/config cfg))))))
